@@ -108,7 +108,7 @@ pub struct RobotCommand {
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct Pos {
-    pub pos: Vec2<f32>,
+    pub pos: Option<Vec2<f32>>,
     pub face: Option<f32>,
     pub speed: Option<u32>,
 }
