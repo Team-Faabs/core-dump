@@ -63,8 +63,11 @@ impl RobotTelemetryWire {
   }
 
   #[inline]
-  pub fn decode(message: [u8; Self::ENCODED_LEN]) -> Self {
-    postcard::from_bytes(&message).expect("RobotTelemetryWire fixed buffer should decode")
+  pub fn decode(message: [u8; Self::ENCODED_LEN]) -> Result<RobotTelemetryWire, postcard::Error> {
+    match postcard::from_bytes(&message) {
+      Ok(robot_telemetry_wire) => Ok(robot_telemetry_wire),
+      Err(err) => Err(err),
+    }
   }
 
   #[inline]
@@ -144,6 +147,6 @@ mod tests {
     let encoded = telemetry.encode();
 
     assert_eq!(encoded.len(), RobotTelemetryWire::ENCODED_LEN);
-    assert_eq!(RobotTelemetryWire::decode(encoded), telemetry);
+    assert_eq!(RobotTelemetryWire::decode(encoded), Ok(telemetry));
   }
 }

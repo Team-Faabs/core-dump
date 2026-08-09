@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-
 //? Size of message:
 //?   - Size of message: 36 Bytes
 //?   - Size for 12 robots: 36 Bytes * 12 = 432 Bytes
@@ -37,6 +36,9 @@ pub struct RobotDebugWire {
   ///   - 11: Control Board
   ///   - 12: SDR
   pub temps: [u8; 12],
+
+  /// Accelerometer data
+  pub g_forces: u8,
 }
 
 impl RobotDebugWire {
@@ -52,16 +54,11 @@ impl RobotDebugWire {
   }
 
   #[inline]
-  pub fn decode(bytes: &[u8]) -> anyhow::Result<Self> {
-    let (message, remaining) = postcard::take_from_bytes(bytes)?;
-    if !remaining.is_empty() {
-      anyhow::bail!(
-        "robot debug wire message has {} trailing bytes after postcard decode",
-        remaining.len()
-      );
+  pub fn decode(message: [u8; Self::ENCODED_LEN]) -> Result<RobotDebugWire, postcard::Error> {
+    match postcard::from_bytes(&message) {
+      Ok(robot_debug_wire) => Ok(robot_debug_wire),
+      Err(err) => Err(err),
     }
-
-    Ok(message)
   }
 }
 
@@ -77,12 +74,13 @@ mod tests {
       motor_rotations: [u16::MAX; 5],
       motor_encoder_rotations: [u16::MAX; 4],
       temps: [u8::MAX; 12],
+      g_forces: u8::MAX,
     };
 
     let encoded = debug.encode();
 
     assert_eq!(encoded.len(), RobotDebugWire::ENCODED_LEN);
-    assert_eq!(RobotDebugWire::decode(&encoded).unwrap(), debug);
+    assert_eq!(RobotDebugWire::decode(encoded), Ok(debug));
   }
 
   #[test]
@@ -93,10 +91,11 @@ mod tests {
       motor_rotations: [3; 5],
       motor_encoder_rotations: [4; 4],
       temps: [5; 12],
+      g_forces: u8::MAX,
     };
-    let mut encoded = debug.encode().to_vec();
-    encoded.push(0);
+    let mut encoded = debug.encode();
+    encoded[0] = 0;
 
-    assert!(RobotDebugWire::decode(&encoded).is_err());
+    assert!(RobotDebugWire::decode(encoded).is_err());
   }
 }

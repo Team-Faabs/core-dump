@@ -414,6 +414,7 @@ mod tests {
             motor_rotations: [258, 2, 3, 4, 5],
             motor_encoder_rotations: [6, 7, 8, 9],
             temps: [20; 12],
+            g_forces: 0,
           })
         } else {
           None
