@@ -20,6 +20,7 @@ pub struct RobotState {
     pub heading: f32,
     pub angular_vel: f32,
     pub is_goalie: bool,
+    pub motion_status: MotionStatus
 }
 
 pub type Robots = [Option<RobotState>; 16];
@@ -255,22 +256,25 @@ impl RobotSelector {
 }
 
 
+#[derive(Debug, Clone, Copy, Default)]
 pub struct MotionStatus {
     pub drive: DriveStatus,
     pub heading: HeadingStatus,
 }
 
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 pub enum DriveStatus {
     Running { eta: f32, progress: f32, dist: f32 },
+    #[default]
     Reached,
     Blocked { progress: f32 },
 }
 
-#[derive(Debug, Clone, Copy)]
+#[derive(Debug, Clone, Copy, Default)]
 pub enum HeadingStatus {
     Running { eta: f32, progress: f32, diff: f32 },
+    #[default]
     Reached,
     Tracking,
     TrackingBehind(f32),
