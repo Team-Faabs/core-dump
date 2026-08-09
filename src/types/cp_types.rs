@@ -232,4 +232,16 @@ impl FieldData {
       },
     }
   }
+
+  /// Defaults for Division B
+  pub fn default() -> Self {
+    Self {
+      height: 6000.0,
+      width: 9000.0,
+      runoff_area: 500.0,
+      goal_width: 1000.0,
+      penalty_area_width: 1000.0,
+      penalty_area_height: 2000.0,
+    }
+  }
 }
