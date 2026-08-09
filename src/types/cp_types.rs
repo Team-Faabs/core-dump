@@ -1,4 +1,4 @@
-use crate::proto::{SslDetectionBall, Team, TrackedBall, TrackedFrame};
+use crate::proto::{SslDetectionBall, SslGeometryData, Team, TrackedBall, TrackedFrame};
 use crate::vec::types::Vec2;
 use serde::{Deserialize, Serialize};
 
@@ -191,6 +191,45 @@ impl Ball {
           }),
         }
       }
+    }
+  }
+}
+
+/// SSL field dimensions in mm, centred at `(0, 0)`.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct FieldData {
+  /// Y extent between the field lines.
+  pub height: f32,
+  /// X extent between the field lines.
+  pub width: f32,
+  /// Additional usable space outside every field line.
+  pub runoff_area: f32,
+
+  pub goal_width: f32,
+  /// Penalty-area depth along X.
+  pub penalty_area_width: f32,
+  /// Penalty-area span along Y.
+  pub penalty_area_height: f32,
+}
+
+impl FieldData {
+  #[inline]
+  pub fn new_from_vis(geom: SslGeometryData) -> Self {
+    Self {
+      height: geom.field.field_length as f32,
+      width: geom.field.field_width as f32,
+      runoff_area: geom.field.boundary_width as f32,
+      goal_width: geom.field.goal_width as f32,
+      penalty_area_width: if let Some(width) = geom.field.penalty_area_width {
+        width as f32
+      } else {
+        0.0
+      },
+      penalty_area_height: if let Some(height) = geom.field.penalty_area_depth {
+        height as f32
+      } else {
+        0.0
+      },
     }
   }
 }
