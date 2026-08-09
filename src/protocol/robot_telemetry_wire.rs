@@ -23,7 +23,7 @@ pub struct RobotTelemetryWire {
   #[serde(with = "postcard::fixint::le")]
   pub vy_mmps: i16,
   #[serde(with = "postcard::fixint::le")]
-  pub omega_mradps: i16,
+  pub orientation: u16,
 
   pub battery_mv: u8,
   pub current: u8,
@@ -63,8 +63,11 @@ impl RobotTelemetryWire {
   }
 
   #[inline]
-  pub fn decode(message: [u8; Self::ENCODED_LEN]) -> Self {
-    postcard::from_bytes(&message).expect("RobotTelemetryWire fixed buffer should decode")
+  pub fn decode(message: [u8; Self::ENCODED_LEN]) -> Result<RobotTelemetryWire, postcard::Error> {
+    match postcard::from_bytes(&message) {
+      Ok(robot_telemetry_wire) => Ok(robot_telemetry_wire),
+      Err(err) => Err(err),
+    }
   }
 
   #[inline]
@@ -134,7 +137,7 @@ mod tests {
       seq_seen: u32::MAX,
       vx_mmps: i16::MIN,
       vy_mmps: i16::MAX,
-      omega_mradps: -1234,
+      orientation: u16::MAX,
       battery_mv: u8::MAX,
       current: u8::MAX,
       capacitor_v: u8::MAX,
@@ -144,6 +147,6 @@ mod tests {
     let encoded = telemetry.encode();
 
     assert_eq!(encoded.len(), RobotTelemetryWire::ENCODED_LEN);
-    assert_eq!(RobotTelemetryWire::decode(encoded), telemetry);
+    assert_eq!(RobotTelemetryWire::decode(encoded), Ok(telemetry));
   }
 }

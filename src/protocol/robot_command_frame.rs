@@ -2,9 +2,9 @@ use crate::protocol::robot_command_wire::RobotCommandWire;
 use serde::{Deserialize, Serialize};
 
 //? Size of message:
-//?   - Size of message: 188 Bytes
-//?   - Throughput at 500Hz: 188 Bytes * 500 = 94kB/s
-//?   - Throughput at 1000Hz: 188 Bytes * 1000 = 188kB/s
+//?   - Size of message: 132 Bytes
+//?   - Throughput at 500Hz: 132 Bytes * 500 = 66kB/s
+//?   - Throughput at 1000Hz: 132 Bytes * 1000 = 132kB/s
 //?
 //? This is all without wrapper message
 
@@ -16,19 +16,18 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct RobotCommandFrame {
   pub version: u8,
-  pub frame_type: u8,
 
   #[serde(with = "postcard::fixint::le")]
   pub seq: u16,
 
-  pub commands: [RobotCommandWire; 12], // Size is 15 Bytes * 12 = 180 Bytes
+  pub commands: [RobotCommandWire; 12], // Size is 10 Bytes * 12 = 120 Bytes
 
   #[serde(with = "postcard::fixint::le")]
   pub crc32: u32,
 }
 
 impl RobotCommandFrame {
-  pub const ENCODED_LEN: usize = 1 + 1 + 2 + (RobotCommandWire::ENCODED_LEN * 12) + 4;
+  pub const ENCODED_LEN: usize = 1 + 2 + (RobotCommandWire::ENCODED_LEN * 12) + 4;
 
   #[inline]
   pub fn encode(&self) -> [u8; Self::ENCODED_LEN] {
@@ -59,7 +58,6 @@ mod tests {
   fn roundtrips_fixed_size_frame() {
     let frame = RobotCommandFrame {
       version: u8::MAX,
-      frame_type: 2,
       seq: u16::MAX,
       commands: [RobotCommandWire {
         intent: u8::MAX,

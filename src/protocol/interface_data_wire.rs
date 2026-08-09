@@ -4,15 +4,12 @@ use crate::protocol::robot_sensor_wire::RobotSensorWire;
 use crate::protocol::robot_telemetry_wire::RobotTelemetryWire;
 use crate::types::cp_types::{Ball, Robot};
 use serde::Serialize;
-//? Size of message:
-//?   - Size of message:  Bytes
-//?   - Throughput at 60Hz:  Bytes * 60 = B/s
-//?
-//? This is all without wrapper message
 
-//?
 //? This message sends all the data wrappers to the
 //? Interface
+//?
+//? The Interface is a Rust Crate now -> no Network Overhead
+//? like before
 
 /// Interface Data Wire
 /// Contains all the necessary data that the
@@ -89,7 +86,7 @@ struct RobotTelemetryWireJson {
   seq_seen: u32,
   vx_mmps: i16,
   vy_mmps: i16,
-  omega_mradps: i16,
+  orientation: u16,
   battery_mv: u8,
   current: u8,
   capacitor_v: u8,
@@ -104,7 +101,7 @@ impl From<&RobotTelemetryWire> for RobotTelemetryWireJson {
       seq_seen: message.seq_seen,
       vx_mmps: message.vx_mmps,
       vy_mmps: message.vy_mmps,
-      omega_mradps: message.omega_mradps,
+      orientation: message.orientation,
       battery_mv: message.battery_mv,
       current: message.current,
       capacitor_v: message.capacitor_v,
@@ -399,7 +396,7 @@ mod tests {
             seq_seen: 0x0102_0304,
             vx_mmps: -1,
             vy_mmps: 2,
-            omega_mradps: -3,
+            orientation: 3,
             battery_mv: 24,
             current: 5,
             capacitor_v: 6,
@@ -417,6 +414,7 @@ mod tests {
             motor_rotations: [258, 2, 3, 4, 5],
             motor_encoder_rotations: [6, 7, 8, 9],
             temps: [20; 12],
+            g_forces: 0,
           })
         } else {
           None

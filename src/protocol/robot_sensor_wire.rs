@@ -51,16 +51,11 @@ impl RobotSensorWire {
   }
 
   #[inline]
-  pub fn decode(bytes: &[u8]) -> anyhow::Result<Self> {
-    let (message, remaining) = postcard::take_from_bytes(bytes)?;
-    if !remaining.is_empty() {
-      anyhow::bail!(
-        "robot sensor wire message has {} trailing bytes after postcard decode",
-        remaining.len()
-      );
+  pub fn decode(message: [u8; Self::ENCODED_LEN]) -> Result<RobotSensorWire, postcard::Error> {
+    match postcard::from_bytes(&message) {
+      Ok(robot_sensor_wire) => Ok(robot_sensor_wire),
+      Err(err) => Err(err),
     }
-
-    Ok(message)
   }
 }
 
@@ -82,7 +77,7 @@ mod tests {
     let encoded = sensor.encode();
 
     assert_eq!(encoded.len(), RobotSensorWire::ENCODED_LEN);
-    assert_eq!(RobotSensorWire::decode(&encoded).unwrap(), sensor);
+    assert_eq!(RobotSensorWire::decode(encoded), Ok(sensor));
   }
 
   #[test]
@@ -95,9 +90,9 @@ mod tests {
       ball_size: 5.0,
       lidar_dist: [6; 450],
     };
-    let mut encoded = sensor.encode().to_vec();
-    encoded.push(0);
+    let mut encoded = sensor.encode();
+    encoded[0] = 0;
 
-    assert!(RobotSensorWire::decode(&encoded).is_err());
+    assert!(RobotSensorWire::decode(encoded).is_err());
   }
 }

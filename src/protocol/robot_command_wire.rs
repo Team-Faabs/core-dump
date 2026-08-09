@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
 
 //? Size of message:
-//?   - Size of message: 15 Bytes
-//?   - Size for 12 robots: 12 * 15 = 180 Bytes
-//?   - Throughput at 500Hz: 180 Bytes * 500 = 90kB/s
-//?   - Throughput at 1000Hz: 180 Bytes * 1000 = 180kB/s
+//?   - Size of message: 10 Bytes
+//?   - Size for 12 robots: 12 * 10 = 120 Bytes
+//?   - Throughput at 500Hz: 120 Bytes * 500 = 60kB/s
+//?   - Throughput at 1000Hz: 120 Bytes * 1000 = 120kB/s
 //?
 //? This is all without wrapper message
 
@@ -44,7 +44,7 @@ pub struct RobotCommandWire {
 struct PackedCommand {
   intent: u8,
 
-  // x and y velocity in 11bits + 1 signbit reslution. Value * 4mm/s
+  // x and y velocity in 11bits + 1 sign bit resolution. Value * 4mm/s
   vx_mps: u8,
   vxy_mps: u8,
   vy_mps: u8,
@@ -54,13 +54,13 @@ struct PackedCommand {
 
   // 6bit for kick speed, 2bit for dribbler speed
   kick_speed: u8,
-  
+
   // 4 flags + 2 bit for the dribbler speed
   flags: u8,
 }
 
 impl RobotCommandWire {
-  pub const ENCODED_LEN: usize = 15;
+  pub const ENCODED_LEN: usize = 10;
 
   #[inline]
   pub fn encode(&self) -> [u8; Self::ENCODED_LEN] {

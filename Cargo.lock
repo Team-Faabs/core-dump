@@ -48,7 +48,6 @@ dependencies = [
 name = "core_dump"
 version = "0.2.0"
 dependencies = [
- "anyhow",
  "num-traits",
  "postcard",
  "prost",
