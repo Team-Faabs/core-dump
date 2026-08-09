@@ -1,6 +1,7 @@
 pub mod sparse;
 
-use crate::vec::types::Vec2;
+use std::fmt::{Debug, Formatter};
+use crate::vec::types::{Rect, Vec2};
 use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, Copy, Default)]
@@ -102,16 +103,180 @@ pub struct RobotCommand {
     pub dribbler: bool,
     pub raw_movement: bool,
     pub avoid_ball_collision: bool,
-    pub pos: Option<Pos>,
+    pub motion: Option<MotionCommand>,
     pub kicker: Kicker,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
-pub struct Pos {
-    pub pos: Option<Vec2<f32>>,
-    pub face: Option<f32>,
-    pub speed: Option<u32>,
+pub struct MotionCommand {
+    pub target: Target,
+    pub heading: HeadingMode,
+    pub limits: Option<Limits>,
+    pub tolerance: Tolerance,
+    pub obstacles: ObstacleFlags,
+    pub priority: u8, //For orca, if it needs to move other robots away
+    pub deadline: Option<f32>,
 }
+
+
+#[derive(Debug, Clone, Copy, Default)]
+pub enum Target {
+    Pos(f32),
+    Heading { heading: f32 }, //drive to heading not turn to heading
+    Velocity {
+        vx: f32,
+        vy: f32,
+    },
+    #[default]
+    Hold
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub enum HeadingMode {
+    Fixed(f32),
+    FaceTarget(Vec2<f32>),
+    FaceBall,
+    FaceRobot(Robot, Team),
+    #[default]
+    Free,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Limits {
+    pub v_max: f32,
+    pub a_max: f32,
+    pub omega_max: f32,
+    pub alpha_max: f32,
+    pub jerk: f32,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct Tolerance {
+    pub pos_mm: f32,
+    pub heading_deg: f32,
+    pub vel: f32,
+}
+
+impl Default for Tolerance {
+    fn default() -> Self {
+        Self {
+            pos_mm: 10.0,
+            heading_deg: 2.0,
+            vel: 0.0,
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct ObstacleFlags {
+    pub avoid_ball: bool,
+    pub defense_area: bool,
+    pub keep_out: Option<Rect<f32>>,
+    pub ignore: RobotSelector,
+}
+
+impl Default for ObstacleFlags {
+    fn default() -> Self {
+        Self {
+            avoid_ball: true,
+            defense_area: false,
+            keep_out: None,
+            ignore: RobotSelector::none(),
+        }
+    }
+}
+
+
+#[derive(Default, Clone, Copy)]
+//Bitset for all robots
+pub struct RobotSelector {
+    pub own: u16,
+    pub opp: u16,
+}
+
+impl Debug for RobotSelector {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "RobotSelector {{ own: {:016b}, opp: {:016b} }}", self.own, self.opp)
+    }
+}
+
+impl RobotSelector {
+    fn new(own: u16, opp: u16) -> Self {
+        Self { own, opp }
+    }
+
+    fn none() -> Self {
+        Self::default()
+    }
+
+    fn all_own() -> Self {
+        Self::new(!0, 0)
+    }
+
+    fn all_opp() -> Self {
+        Self::new(0, !0)
+    }
+
+    fn all() -> Self {
+        Self::new(!0, !0)
+    }
+
+    fn set_own(mut self, idx: u8) -> Self {
+        self.own |= 1 << idx;
+        self
+    }
+
+    fn set_opp(mut self, idx: u8) -> Self {
+        self.opp |= 1 << idx;
+        self
+    }
+
+    fn ignore_own(robot: Robot) -> Self {
+        Self::none().set_own(robot as u8)
+    }
+
+    fn ignore_opp(robot: Robot) -> Self {
+        Self::none().set_opp(robot as u8)
+    }
+
+    fn from_set(own: &[Robot], opp: &[Robot]) -> Self {
+        let mut slf = Self::none();
+
+        for r in own {
+            slf = slf.set_own((*r) as u8);
+        }
+
+        for r in opp {
+            slf = slf.set_opp((*r) as u8);
+        }
+
+        slf
+    }
+}
+
+
+pub struct MotionStatus {
+    pub drive: DriveStatus,
+    pub heading: HeadingStatus,
+}
+
+
+#[derive(Debug, Clone, Copy)]
+pub enum DriveStatus {
+    Running { eta: f32, progress: f32, dist: f32 },
+    Reached,
+    Blocked { progress: f32 },
+}
+
+#[derive(Debug, Clone, Copy)]
+pub enum HeadingStatus {
+    Running { eta: f32, progress: f32, diff: f32 },
+    Reached,
+    Tracking,
+    TrackingBehind(f32),
+}
+
+
 
 #[derive(Debug, Clone, Copy, Default)]
 pub enum Kicker {

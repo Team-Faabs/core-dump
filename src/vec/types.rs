@@ -15,6 +15,12 @@ pub struct Vec3<T> {
   pub z: T,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+pub struct Rect<T> {
+  pub min: Vec2<T>,
+  pub max: Vec2<T>,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Axis {
   X,
