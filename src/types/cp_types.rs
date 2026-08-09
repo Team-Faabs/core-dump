@@ -233,6 +233,25 @@ impl FieldData {
     }
   }
 
+  /// Update with new vis data
+  #[inline]
+  pub fn update(&mut self, geom: SslGeometryData) {
+    self.height = geom.field.field_length as f32;
+    self.width = geom.field.field_width as f32;
+    self.runoff_area = geom.field.boundary_width as f32;
+    self.goal_width = geom.field.goal_width as f32;
+    self.penalty_area_width = if let Some(width) = geom.field.penalty_area_width {
+      width as f32
+    } else {
+      0.0
+    };
+    self.penalty_area_height = if let Some(height) = geom.field.penalty_area_depth {
+      height as f32
+    } else {
+      0.0
+    };
+  }
+
   /// Defaults for Division B
   pub fn default() -> Self {
     Self {
