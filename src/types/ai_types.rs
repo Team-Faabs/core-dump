@@ -102,8 +102,6 @@ pub enum Robot {
 #[derive(Debug, Clone, Copy, Default)]
 pub struct RobotCommand {
     pub dribbler: bool,
-    pub raw_movement: bool,
-    pub avoid_ball_collision: bool,
     pub motion: Option<MotionCommand>,
     pub kicker: Kicker,
 }
@@ -171,15 +169,18 @@ impl Default for Tolerance {
 #[derive(Debug, Clone, Copy)]
 pub struct ObstacleFlags {
     pub avoid_ball: bool,
+    pub raw_movement: bool,
     pub defense_area: bool,
     pub keep_out: Option<Rect<f32>>,
     pub ignore: RobotSelector,
 }
 
+
 impl Default for ObstacleFlags {
     fn default() -> Self {
         Self {
             avoid_ball: true,
+            raw_movement: false,
             defense_area: false,
             keep_out: None,
             ignore: RobotSelector::none(),
