@@ -75,8 +75,9 @@ pub enum Intent {
     GetBallTurn,
     GetBallBehind,
     SmashBall,
-    #[default]
     Hold,
+    #[default]
+    Unknown,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, Default)]
@@ -106,6 +107,7 @@ pub struct RobotCommand {
     pub dribbler: bool,
     pub motion: Option<MotionCommand>,
     pub kicker: Kicker,
+    pub intent: Intent,
 }
 
 #[derive(Debug, Clone, Copy, Default)]
