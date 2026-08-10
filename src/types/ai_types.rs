@@ -123,7 +123,7 @@ pub struct MotionCommand {
 
 #[derive(Debug, Clone, Copy, Default)]
 pub enum Target {
-    Pos(f32),
+    Pos(Vec2<f32>),
     Heading { heading: f32 }, //drive to heading not turn to heading
     Velocity {
         vx: f32,
