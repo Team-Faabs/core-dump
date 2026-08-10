@@ -268,7 +268,7 @@ pub struct MotionStatus {
 }
 
 
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub enum DriveStatus {
     Running { eta: f32, progress: f32, dist: f32 },
     #[default]
@@ -276,7 +276,7 @@ pub enum DriveStatus {
     Blocked { progress: f32 },
 }
 
-#[derive(Debug, Clone, Copy, Default)]
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
 pub enum HeadingStatus {
     Running { eta: f32, progress: f32, diff: f32 },
     #[default]
