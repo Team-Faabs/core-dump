@@ -22,7 +22,8 @@ pub struct RobotState {
     pub heading: f32,
     pub angular_vel: f32,
     pub is_goalie: bool,
-    pub motion_status: MotionStatus
+    pub has_ball: bool,
+    pub motion_status: MotionStatus,
 }
 
 pub type Robots = [Option<RobotState>; 16];
