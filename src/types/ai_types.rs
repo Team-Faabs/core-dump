@@ -1,6 +1,8 @@
 pub mod sparse;
 
 use std::fmt::{Debug, Formatter};
+use std::ops::Deref;
+use std::sync::atomic::{AtomicU32, Ordering};
 use crate::vec::types::{Rect, Vec2};
 use serde::{Serialize, Deserialize};
 
@@ -115,6 +117,7 @@ pub struct MotionCommand {
     pub obstacles: ObstacleFlags,
     pub priority: u8, //For orca, if it needs to move other robots away
     pub deadline: Option<f32>,
+    pub id: Id,
 }
 
 
@@ -261,6 +264,7 @@ impl RobotSelector {
 pub struct MotionStatus {
     pub drive: DriveStatus,
     pub heading: HeadingStatus,
+    pub id: Id,
 }
 
 
@@ -312,3 +316,39 @@ impl Ai for DummyAi {
         Commands::default()
     }
 }
+
+
+#[derive(Copy, Clone, Debug, PartialEq, Eq)]
+pub struct Id(u32);
+
+impl Default for Id {
+    fn default() -> Self {
+        Self(Self::next_id())
+    }
+}
+
+impl Deref for Id {
+    type Target = u32;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Id {
+    pub const ZERO: Self = Self(0);
+
+    fn get(self) -> u32 {
+        self.0
+    }
+
+    fn next_id() -> u32 {
+        let id = ID.load(Ordering::Relaxed);
+
+        ID.store(id.wrapping_add(1), Ordering::Relaxed);
+
+        id
+    }
+}
+
+static ID: AtomicU32 = AtomicU32::new(1);
