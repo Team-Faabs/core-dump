@@ -102,6 +102,30 @@ pub enum Robot {
     R15 = 15,
 }
 
+impl Robot {
+    pub fn from_u8(r: u8) -> Option<Self> {
+        Some(match r {
+            0 => Robot::R0,
+            1 => Robot::R1,
+            2 => Robot::R2,
+            3 => Robot::R3,
+            4 => Robot::R4,
+            5 => Robot::R5,
+            6 => Robot::R6,
+            7 => Robot::R7,
+            8 => Robot::R8,
+            9 => Robot::R9,
+            10 => Robot::R10,
+            11 => Robot::R11,
+            12 => Robot::R12,
+            13 => Robot::R13,
+            14 => Robot::R14,
+            15 => Robot::R15,
+            _ => return None,
+        })
+    }
+}
+
 
 #[derive(Debug, Clone, Copy, Default)]
 pub struct RobotCommand {
