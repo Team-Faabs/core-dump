@@ -156,8 +156,35 @@ pub enum Target {
         vx: f32,
         vy: f32,
     },
+    Intercept(InterceptTarget),
     #[default]
     Hold
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub enum TerminalVelocityConstraint {
+    #[default]
+    Unconstrained,
+    MatchTarget,
+    MaxRelativeSpeed {
+        mm_s: f32,
+    },
+}
+
+#[derive(Debug, Clone, Copy, Default, PartialEq)]
+pub struct TimedTrajectory {
+    pub start_time: f64,
+    pub position: Vec2<f32>,
+    pub velocity: Vec2<f32>,
+    pub acceleration: Vec2<f32>,
+    pub jerk: Vec2<f32>,
+}
+
+#[derive(Debug, Clone, Copy, Default)]
+pub struct InterceptTarget {
+    pub trajectory: TimedTrajectory,
+    pub terminal_vel: TerminalVelocityConstraint,
+
 }
 
 #[derive(Debug, Clone, Copy, Default)]
