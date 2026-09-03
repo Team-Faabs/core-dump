@@ -135,9 +135,8 @@ impl<'a> From<&'a RobotDebugWire> for RobotDebugWireJson<'a> {
 struct RobotSensorWireJson<'a> {
   robot_id: u8,
   seq: u32,
-  ball_x: i32,
-  ball_y: i32,
-  ball_size: f32,
+  ball_angle: i32,
+  ball_dist: u32,
   lidar_dist: &'a [u32],
 }
 
@@ -146,9 +145,8 @@ impl<'a> From<&'a RobotSensorWire> for RobotSensorWireJson<'a> {
     Self {
       robot_id: message.robot_id,
       seq: message.seq,
-      ball_x: message.ball_x,
-      ball_y: message.ball_y,
-      ball_size: message.ball_size,
+      ball_angle: message.ball_angle,
+      ball_dist: message.ball_dist,
       lidar_dist: &message.lidar_dist,
     }
   }
@@ -425,9 +423,8 @@ mod tests {
           Some(RobotSensorWire {
             robot_id: 0,
             seq: 7,
-            ball_x: -10,
-            ball_y: 11,
-            ball_size: 12.5,
+            ball_angle: -10,
+            ball_dist: 11,
             lidar_dist: [42; 450],
           })
         } else {

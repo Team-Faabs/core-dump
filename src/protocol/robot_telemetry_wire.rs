@@ -123,6 +123,22 @@ impl RobotTelemetryWire {
   pub fn is_shutting_down(&self) -> bool {
     self.flags & (1 << 15) != 0
   }
+
+  #[inline]
+  pub fn new() -> Self {
+    Self {
+      robot_id: 0,
+      status: 0,
+      seq_seen: 0,
+      vx_mmps: 0,
+      vy_mmps: 0,
+      orientation: 0,
+      battery_mv: 0,
+      current: 0,
+      capacitor_v: 0,
+      flags: 0,
+    }
+  }
 }
 
 #[cfg(test)]

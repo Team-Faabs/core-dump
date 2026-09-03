@@ -60,6 +60,18 @@ impl RobotDebugWire {
       Err(err) => Err(err),
     }
   }
+
+  #[inline]
+  pub fn new() -> Self {
+    Self {
+      robot_id: 0,
+      motor_current: [0; 5],
+      motor_rotations: [0; 5],
+      motor_encoder_rotations: [0; 4],
+      temps: [0; 12],
+      g_forces: 0,
+    }
+  }
 }
 
 #[cfg(test)]

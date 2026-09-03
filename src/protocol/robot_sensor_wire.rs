@@ -1,7 +1,7 @@
 // ? Size of message:
-//?   - Size of message: 1,817 Bytes
-//?   - Throughput at 500Hz: 1,817 Bytes * 500 = 908.5kB/s
-//?   - Throughput at 1000Hz: 1,817 Bytes * 1000 = 1.817MB/s
+//?   - Size of message: 1,813 Bytes
+//?   - Throughput at 500Hz: 1,813 Bytes * 500 = 906.5kB/s
+//?   - Throughput at 1000Hz: 1,813 Bytes * 1000 = 1.813MB/s
 //?
 //? This is all without wrapper message
 //? Should be more than suitable for WiFi communication with a channel width of 40MHz
@@ -26,10 +26,9 @@ pub struct RobotSensorWire {
 
   // Vision
   #[serde(with = "postcard::fixint::le")]
-  pub ball_x: i32,
+  pub ball_angle: i32,
   #[serde(with = "postcard::fixint::le")]
-  pub ball_y: i32,
-  pub ball_size: f32,
+  pub ball_dist: u32,
 
   // Lidar
   /// 0 to 360 degrees, each degree one distance measurement in mm
@@ -39,7 +38,7 @@ pub struct RobotSensorWire {
 }
 
 impl RobotSensorWire {
-  pub const ENCODED_LEN: usize = 1 + 4 + 4 + 4 + 4 + (4 * 450);
+  pub const ENCODED_LEN: usize = 1 + 4 + 4 + 4 + (4 * 450);
 
   #[inline]
   pub fn encode(&self) -> [u8; Self::ENCODED_LEN] {
@@ -57,10 +56,23 @@ impl RobotSensorWire {
       Err(err) => Err(err),
     }
   }
+
+  #[inline]
+  pub fn new() -> Self {
+    Self {
+      robot_id: 0,
+      seq: 0,
+      lidar_dist: [0; 450],
+      ball_angle: 0,
+      ball_dist: 0,
+    }
+  }
 }
 
 #[cfg(test)]
 mod tests {
+  use std::{i32, u32};
+
   use super::*;
 
   #[test]
@@ -68,10 +80,9 @@ mod tests {
     let sensor = RobotSensorWire {
       robot_id: u8::MAX,
       seq: u32::MAX,
-      ball_x: i32::MIN,
-      ball_y: i32::MAX,
-      ball_size: 42.5,
       lidar_dist: [u32::MAX; 450],
+      ball_angle: i32::MAX,
+      ball_dist: u32::MAX,
     };
 
     let encoded = sensor.encode();
@@ -85,10 +96,9 @@ mod tests {
     let sensor = RobotSensorWire {
       robot_id: 1,
       seq: 2,
-      ball_x: 3,
-      ball_y: 4,
-      ball_size: 5.0,
       lidar_dist: [6; 450],
+      ball_angle: 4,
+      ball_dist: 5,
     };
     let mut encoded = sensor.encode();
     encoded[0] = 0;
