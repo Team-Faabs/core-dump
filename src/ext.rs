@@ -1,6 +1,5 @@
-
 pub trait NumberExt {
-    fn angle_diff(self, other: Self) -> Self;
+  fn angle_diff(self, other: Self) -> Self;
 }
 macro_rules! impl_number_ext {
     (float, $($t:ty),*) => {
