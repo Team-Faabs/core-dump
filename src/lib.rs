@@ -1,3 +1,4 @@
+pub mod kalman;
 pub mod proto;
 pub mod protocol;
 pub mod types;
