@@ -1,3 +1,4 @@
+pub mod control;
 pub mod kalman;
 pub mod proto;
 pub mod protocol;
