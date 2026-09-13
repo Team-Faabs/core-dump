@@ -10,6 +10,14 @@ pub struct PidController<T> {
   previous_error: Option<T>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PidConfig<T> {
+  pub kp: T,
+  pub ki: T,
+  pub kd: T,
+
+}
+
 impl<T: Float> PidController<T> {
   pub fn new(kp: T, ki: T, kd: T) -> Self {
     Self {
@@ -19,6 +27,10 @@ impl<T: Float> PidController<T> {
       integral: T::zero(),
       previous_error: None,
     }
+  }
+
+  pub fn from_config(config: PidConfig<T>) -> Self {
+    Self::new(config.kp, config.ki, config.kd)
   }
 
   /// Updates the controller from the current error and elapsed time.
@@ -53,6 +65,12 @@ pub struct PiController<T> {
   integral: T,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PiConfig<T> {
+  pub kp: T,
+  pub ki: T,
+}
+
 impl<T: Float> PiController<T> {
   pub fn new(kp: T, ki: T) -> Self {
     Self {
@@ -60,6 +78,10 @@ impl<T: Float> PiController<T> {
       ki,
       integral: T::zero(),
     }
+  }
+
+  pub fn from_config(config: PiConfig<T>) -> Self {
+    Self::new(config.kp, config.ki)
   }
 
   /// Updates the controller from the current error and elapsed time.
@@ -87,6 +109,12 @@ pub struct PdController<T> {
   previous_error: Option<T>,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PdConfig<T> {
+  pub kp: T,
+  pub kd: T,
+}
+
 impl<T: Float> PdController<T> {
   pub fn new(kp: T, kd: T) -> Self {
     Self {
@@ -94,6 +122,10 @@ impl<T: Float> PdController<T> {
       kd,
       previous_error: None,
     }
+  }
+
+  pub fn from_config(config: PdConfig<T>) -> Self {
+    Self::new(config.kp, config.kd)
   }
 
   /// Updates the controller from the current error and elapsed time.
